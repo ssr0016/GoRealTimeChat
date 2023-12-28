@@ -4,6 +4,7 @@ import (
 	"log"
 	"server/db"
 	"server/internal/user"
+	"server/internal/websocket"
 	"server/router"
 )
 
@@ -17,6 +18,10 @@ func main() {
 	userSvc := user.NewService(userRep)
 	userHandler := user.NewHandler(userSvc)
 
-	router.InitRouter(userHandler)
+	hub := websocket.NewHub()
+	websocketHandler := websocket.NewHandler(hub)
+	go hub.Run() //separategoroutine
+
+	router.InitRouter(userHandler, websocketHandler)
 	router.Start("0.0.0.0:8080")
 }
